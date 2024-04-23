@@ -5,7 +5,7 @@
 # * Outlier and Missing Value Detection, and Imputation
 # * Feature Engineering (converting categorical variables into dummy coded versions)
 # * PCA for dimensionality reduction
-# * Statistical Tests for categorical variables - T-tests for binary variables, ANOVA for 3+ categories, and Chi-Square between categorical variables
+# * Statistical Tests for categorical variables - T-tests for binary variables, ANOVA for 3+ categories
 #%%[markdown]
 # Dataframes that are created in this file and ready for next steps include:
 # * "df"
@@ -82,7 +82,7 @@ df = df.drop('wave', axis = 1)
 # Beginning with numeric variables:
 num_cols = ['age', 'c_temp', 'snowfall', 'rainfall', 'disasters', 'storms', 'spending', 'el_nino', 'g_temp', 'g_temp_lowess', 'children', 'adults', 'population']
 # Case_ID is not on this list, as it seems to be another index column that does not provide any useful information
-cat_cols = ['region9', 'happening', 'female', 'education', 'income', 'race', 'ideology', 'party', 'religion', 'marit_status', 'employment', 'City', 'year', 'month']
+cat_cols = ['happening', 'female', 'education', 'income', 'race', 'ideology', 'party', 'religion', 'marit_status', 'employment', 'City', 'year', 'month']
 
 
 #%%
@@ -190,14 +190,6 @@ for cols in cat_cols:
 # %%[markdown]
 # Our categorical variables have a variety of distributions, most of which are not evenly spread between categories. Gender, however, is a roughly 50/50 split, and the year variable has similar frequencies from 2008 to 2021, but drops off in 2022. All of our other variables, however, have significant amounts of variation in the frequency of each category. Notably, our outcome variable, opinion on whether climate change is or is not happening, is a roughly 67/33 split, with roughly two thirds of all respondents from between 2008 to 2023 believing in climate change.
 
-#%%
-# Running some statistical tests between variables
-
-# %%
-
-# %%
-for cols in cat_cols:
-  print(f"{cols}_dummy")
 # %%
 # Feature Engineering for model building
 # Creating dummy variables for categorical variables
@@ -283,8 +275,6 @@ pca = PCA(n_components= comp)
 dummy_PCA2 = pca.fit_transform(dummy_standard)
 dummy_PCA2 = pd.DataFrame(dummy_PCA2)
 sum(pca.explained_variance_ratio_)
-# %%
-df.head()
 # %%[markdown]
 # Dataframes ready to use for modeling
 # df
@@ -292,23 +282,6 @@ df.head()
 # df_PCA
 # dummy_PCA2
 # potentially dummy_PCA if dummy_PCA2 is too annoying to work with
-
-
-#%%
-# Function to run Chi-Square tests
-# %%
-def chi_square(row, col, data):
-    crosstab = pd.crosstab(data[row],
-                         data[col])
-    obs = np.array(crosstab)
-    stat, p, dof, exp = stats.chi2_contingency(obs)
-    print(f"Stat: {stat:.2f}")
-    print(f"p-value: {p:.2f}")
-    print(f"Degrees of Freedom: {dof}") 
-    return 
-#%%
-# chi_square('income', 'education')
-
 # %%
 # Function to run t-tests
 def t_test2(cat, cont):
@@ -332,7 +305,6 @@ def anova(data, cat, cont):
     slices = data[bool][cont]
     var.append(slices)
   stat, p = stats.f_oneway(*var)
-  var.clear()
   print(f"Stat: {stat:.2f}")
   print(f"p-value: {p:.2f}")
   return
@@ -344,95 +316,6 @@ def anova(data, cat, cont):
 em_bool = df['year'] < 2021
 df_em = df[em_bool]
 #%%
-# Performing Chi-tests
-#%%
-# Region9
-for cats in cat_cols:
-  print(cats)
-  chi_square(cats, 'region9', df)
-  print()
-
-#%%
-# Happening
-for cats in cat_cols:
-  print(cats)
-  chi_square(cats, 'happening', df)
-  print()
-
-#%%
-# Female
-for cats in cat_cols:
-  print(cats)
-  chi_square(cats, 'female', df)
-  print()
-
-#%%
-# Education
-for cats in cat_cols:
-  print(cats)
-  chi_square(cats, 'education', df)
-  print()
-#%%
-# Income
-for cats in cat_cols:
-  print(cats)
-  chi_square(cats, 'income', df)
-  print()
-#%%
-# Race
-for cats in cat_cols:
-  print(cats)
-  chi_square(cats, 'race', df)
-  print()
-#%%
-# Ideology
-for cats in cat_cols:
-  print(cats)
-  chi_square(cats, 'ideology', df)
-  print()
-#%%
-# Party Affiliation
-for cats in cat_cols:
-  print(cats)
-  chi_square(cats, 'party', df)
-  print()
-#%%
-# Religion
-for cats in cat_cols:
-  print(cats)
-  chi_square(cats, 'religion', df)
-  print()
-#%%
-# Marital Status
-for cats in cat_cols:
-  print(cats)
-  chi_square(cats, 'marit_status', df_em)
-  print()
-#%%
-# Employment
-for cats in cat_cols:
-  print(cats)
-  chi_square(cats, 'employment', df_em)
-  print()
-#%%
-# City
-for cats in cat_cols:
-  print(cats)
-  chi_square(cats, 'City', df)
-  print()
-#%%
-# Year
-for cats in cat_cols:
-  print(cats)
-  chi_square(cats, 'year', df)
-  print()
-#%%
-# Month
-for cats in cat_cols:
-  print(cats)
-  chi_square(cats, 'month', df)
-  print()
-
 #%%
 # T-tests
 # Happening
@@ -520,5 +403,144 @@ for nums in num_cols:
   print(nums)
   anova(df, 'month', nums)
   print()
-# %%
+# %%[markdown]
+# Investigating the results of our tests
+# It seems that the vast majority of all tests were significant, so I want to see if there are any structural properites of our data that would lead to that
 
+#%%[markdown]
+# It seems that global temp varies by city, which doesn't make sense, so let's look at these variables
+#%%
+sns.violinplot(df, x = 'g_temp', y= 'City')
+#%%[markdown]
+# Perhaps cities are being surveyed in different years, which could lead to some sort of effect like this
+sns.countplot(df, y = 'City', hue = 'year')
+
+#%%[markdown]
+# Based on the above visualizations, it seems that perhaps the differences we are detecting do exist, but perhaps they are simply small, but are relayed as significant because of our large sample size
+#%%
+# Measuring effect size
+from statsmodels.stats.oneway import effectsize_oneway
+#%%
+def anova(data, cat, cont):
+  groups = list(data[cat].unique())
+  var = []
+  for group in groups:
+    bool = data[cat] == group
+    slices = data[bool][cont]
+    var.append(slices)
+  stat, p = stats.f_oneway(*var)
+  means = []
+  variance = []
+  for vars in var:
+    m = statistics.mean(vars)
+    means.append(m)
+    v = statistics.variance(vars)
+    variance.append(v)
+  e = effectsize_oneway(means, variance, nobs= len(data), use_var="equal") 
+  print(f"Stat: {stat:.2f}")
+  print(f"p-value: {p:.2f}")
+  print(f"Effect size: {e:.2f}")
+  return
+#%%
+# Rerunning ANOVA to include effect sizes
+# Education
+for nums in num_cols:
+  print(nums)
+  anova(df, 'education', nums)
+  print()
+#%%
+# Income
+for nums in num_cols:
+  print(nums)
+  anova(df, 'income', nums)
+  print()
+#%%
+# Race
+for nums in num_cols:
+  print(nums)
+  anova(df, 'race', nums)
+  print()
+#%%
+# Ideology
+for nums in num_cols:
+  print(nums)
+  anova(df, 'ideology', nums)
+  print()
+#%%
+# Party
+for nums in num_cols:
+  print(nums)
+  anova(df, 'party', nums)
+  print()
+#%%
+# Religion
+for nums in num_cols:
+  print(nums)
+  anova(df, 'religion', nums)
+  print()
+#%%
+# Marital Status
+for nums in num_cols:
+  print(nums)
+  anova(df_em, 'marit_status', nums)
+  print()
+#%%
+# Employment
+for nums in num_cols:
+  print(nums)
+  anova(df_em, 'employment', nums)
+  print()
+
+#%%
+# City
+for nums in num_cols:
+  print(nums)
+  anova(df, 'City', nums)
+  print()
+#%%
+# Year
+for nums in num_cols:
+  print(nums)
+  anova(df, 'year', nums)
+  print()
+#%%
+# Month
+for nums in num_cols:
+  print(nums)
+  anova(df, 'month', nums)
+  print()
+# %%
+# Create function to calculate t-test effect size
+from numpy import std, mean, sqrt
+def cohen_d(x,y):
+    nx = len(x)
+    ny = len(y)
+    dof = nx + ny - 2
+    return (mean(x) - mean(y)) / sqrt(((nx-1)*std(x, ddof=1) ** 2 + (ny-1)*std(y, ddof=1) ** 2) / dof)
+
+# %%
+# Restructuring t-test to incorporate effect size
+def t_test2(cat, cont):
+  sample1_bool = df[cat] == 0
+  sample1 = df[sample1_bool][cont]
+  sample2_bool = df[cat] == 1
+  sample2 = df[sample2_bool][cont]
+  stat, p = stats.ttest_ind(sample1, sample2)
+  e = cohen_d(sample1, sample2)
+  print(f"Stat: {stat:.2f}")
+  print(f"p-value: {p:.2f}")
+  print(f"Effect size: {e:.2f}")
+  return
+# %%
+# Happening
+for nums in num_cols:
+  print(nums)
+  t_test2('happening', nums)
+  print()
+# %%
+# Female
+for nums in num_cols:
+  print(nums)
+  t_test2('female', nums)
+  print()
+# %%
