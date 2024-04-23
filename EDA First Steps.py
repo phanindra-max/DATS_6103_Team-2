@@ -27,7 +27,7 @@ import pylab as py
 df1 = pd.read_csv('DATS 6103 Final Team 2 Data.csv')
 
 df1.head()
-# Unnamed: and Case_ID contain redundant index values, so they can be dropped
+# Unnamed:, Case_ID, and region9 contain redundant index values, so they can be dropped
 df1 = df1.drop(["Unnamed: 0", "case_ID"], axis = 1)
 #%%
 # Check proportions of missing values
@@ -38,7 +38,7 @@ for cols in col:
 #%%[markdown]
 # Seems that many are missing the exact same percentage of values
 # %%
-missing1 = df1['region9'].isna()
+missing1 = df1['year'].isna()
 df2 = df1[missing1]
 #%%
 # Checking if those missing values are missing in all columns
@@ -75,7 +75,7 @@ df = cleaning.copy(deep = True)
 #%%
 # Lastly, the "Wave" column gives us the survey wave that the information is given in, telling us the month and the year, but sine 'Year' already gives us the year of the survey, we will convert 'Wave' into 'Month' 
 df['month'] = df['wave'].str[0:3]
-df = df.drop('wave', axis = 1)
+df = df.drop(['wave', 'region9'], axis = 1)
 
 # %%
 # Now that missing values have been treated, we will dive more in depth to the summary statistics of each variable
@@ -102,7 +102,7 @@ for cols in cat_cols:
 incomecheck = df['income'] == "99"
 df[incomecheck]['income']
 # %%
-df.iloc[30041, 6] = statistics.mode(df['income'])
+df.iloc[30041, 5] = statistics.mode(df['income'])
 #%%
 # Visualizing distributions
 for cols in num_cols:
@@ -129,10 +129,6 @@ for cols in num_cols:
 # Visualizing Categorical Data
 # %%
 df['income'] = df['income'].astype("category")
-
-cats_race = ["White, Non-Hispanic", "Hispanic", "Black, Non-Hispanic", "Other, Non-Hispanic"]
-order_race = pd.CategoricalDtype(cats_race, ordered= True)
-df['race']=df['race'].astype(order_race)
 # %%
 cats_income = ["Less than $5,000", 
                "$5,000 to $7,499",
@@ -207,7 +203,7 @@ for cols in dummy_cat_cols:
 
 # len(dummies)
 # %%
-df_withdummies = pd.concat([df.drop(dummy_cat_cols, axis = 1), dummies[0], dummies[1], dummies[2], dummies[3], dummies[4], dummies[5], dummies[6], dummies[7], dummies[8], dummies[9], dummies[10]], axis = 1)
+df_withdummies = pd.concat([df.drop(dummy_cat_cols, axis = 1), dummies[0], dummies[1], dummies[2], dummies[3], dummies[4], dummies[5], dummies[6], dummies[7], dummies[8], dummies[9]], axis = 1)
 #%%
 # Creating Principal Components for PCA
 from sklearn.preprocessing import StandardScaler
@@ -309,7 +305,7 @@ def anova(data, cat, cont):
   print(f"p-value: {p:.2f}")
   return
 #%%
-# anova('income', 'age')
+# anova(df, 'income', 'age')
 #%%
 # Because of missing values in Marital Status and Employment, they need to be treated differently
 # Marital Status
@@ -331,12 +327,6 @@ for nums in num_cols:
   print()
 # %%
 # ANOVA
-# Region
-for nums in num_cols:
-  print(nums)
-  anova(df, 'region9', nums)
-  print()
-#%%
 # Education
 for nums in num_cols:
   print(nums)
@@ -455,6 +445,8 @@ for nums in num_cols:
   anova(df, 'income', nums)
   print()
 #%%
+num_cols
+#%%
 # Race
 for nums in num_cols:
   print(nums)
@@ -543,4 +535,5 @@ for nums in num_cols:
   print(nums)
   t_test2('female', nums)
   print()
-# %%
+
+
