@@ -238,4 +238,27 @@ plt.show()
 # * Natural Disaster Frequency: The frequency of weather-related natural disasters varies across regions, with some areas experiencing more frequent disasters than others. This could be due to factors such as geographical location, climate, and susceptibility to certain types of disasters.
 # * Severe Storm Warnings: Similarly, the frequency of severe storm warnings varies across regions, with some areas experiencing more frequent warnings than others. This could be due to local climate conditions and susceptibility to severe weather events.
 
+#%%
+
+# Data Imbalance check
+
+happening_counts = df1['happening'].value_counts()
+print(happening_counts)
+
+# Plotting the distribution of the 'happening' variable
+plt.figure(figsize=(6, 4))
+sns.countplot(x='happening', data=df1)
+plt.title('Distribution of Happening Variable')
+plt.xlabel('Happening')
+plt.ylabel('Count')
+plt.show()
+
+# Calculating the imbalance ratio
+imbalance_ratio = happening_counts[0] / happening_counts[1]
+print("Imbalance Ratio:", imbalance_ratio)
+
+
+# %%[markdown]
+#This indicates that the majority class (1.0) has approximately twice as many instances as the minority class (0.0)
+
 
