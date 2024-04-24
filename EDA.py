@@ -21,7 +21,7 @@ import geopandas as gpd
 
 # %%
 # Import data
-df1 = pd.read_csv('Users/bharatkhandelwal/Desktop/DATS_6103_Team-2/DATS 6103 Final Team 2 Data.csv')
+df1 = pd.read_csv('DATS 6103 Final Team 2 Data.csv')
 
 # Unnamed:, Case_ID, and region9 contain redundant index values, so they can be dropped
 df1 = df1.drop(["Unnamed: 0", "case_ID"], axis = 1)
