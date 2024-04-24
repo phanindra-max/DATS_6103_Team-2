@@ -1,4 +1,8 @@
 #%%[markdown]
+# NOTE: This is a copy of EDA First Steps, to use the variables created in this file for the modeling part.
+
+
+#%%[markdown]
 # Below are some first steps of EDA, which includes:
 # * Summary Statistics of the Variables in our dataset
 # * Data Visualization of the distribution of the Variables in our dataset
