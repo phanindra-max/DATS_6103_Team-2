@@ -61,3 +61,62 @@ plt.show()
 # * El Niño and Storms: There is a moderate positive correlation between the El Niño index and the number of storms, indicating that El Niño conditions may lead to more severe storms.
 # * Global Temperature (g_temp) and Storms: There is a strong positive correlation between global temperature and the number of storms, suggesting that global temperature may influence storm frequency.
 # * Global Temperature (g_temp) and Climate Temperature (c_temp): There is a strong positive correlation between global temperature and climate temperature, which is expected as global temperature affects local climate.
+
+# %%
+#Temporal Analysis
+new_df = df1.loc[:,['year','age','c_temp','snowfall','rainfall','disasters','storms','spending']]
+
+# Aggregating data based on year
+yearly_data = new_df.groupby('year').mean()
+
+# Plotting the trends over time
+fig, axes = plt.subplots(nrows=3, ncols=2, figsize=(20, 15))
+
+# Age
+axes[0, 0].plot(yearly_data.index, yearly_data['age'], marker='o')
+axes[0, 0].set_title('Average Age Over Time')
+axes[0, 0].set_xlabel('Year')
+axes[0, 0].set_ylabel('Age')
+
+# Average Temperature
+axes[0, 1].plot(yearly_data.index, yearly_data['c_temp'], marker='o')
+axes[0, 1].set_title('Average Temperature Over Time')
+axes[0, 1].set_xlabel('Year')
+axes[0, 1].set_ylabel('Temperature')
+
+# Snowfall
+axes[1, 0].plot(yearly_data.index, yearly_data['snowfall'], marker='o')
+axes[1, 0].set_title('Average Snowfall Over Time')
+axes[1, 0].set_xlabel('Year')
+axes[1, 0].set_ylabel('Snowfall')
+
+# Rainfall
+axes[1, 1].plot(yearly_data.index, yearly_data['rainfall'], marker='o')
+axes[1, 1].set_title('Average Rainfall Over Time')
+axes[1, 1].set_xlabel('Year')
+axes[1, 1].set_ylabel('Rainfall')
+
+# Disasters
+axes[2, 0].plot(yearly_data.index, yearly_data['disasters'], marker='o')
+axes[2, 0].set_title('Average Disasters Over Time')
+axes[2, 0].set_xlabel('Year')
+axes[2, 0].set_ylabel('Disasters')
+
+# Storms
+axes[2, 1].plot(yearly_data.index, yearly_data['storms'], marker='o')
+axes[2, 1].set_title('Average Storms Over Time')
+axes[2, 1].set_xlabel('Year')
+axes[2, 1].set_ylabel('Storms')
+
+plt.tight_layout()
+plt.show()
+# %%[markdown]
+
+#Based on the temporal analysis of the data, the following conclusions can be drawn:
+# * Age: The average age of the population seems to be increasing steadily over the years after a sharp fall in the year 2010. 
+# * Average Temperature (c_temp): There is a clear upward trend in average temperatures over time, indicating a potential long-term increase in temperature.
+# * Snowfall: The average snowfall shows a decreasing trend over the years, suggesting a possible decrease in snowfall amounts over time.
+# * Rainfall: The average rainfall appears to decrease initially and then stabilize at a lower level witn increase in the year 2017, indicating a potential change in rainfall patterns over time.
+# * Natural Disasters: The average number of natural disasters shows a steady trend with a a steep rise in the 2020, suggesting a potential increase in the frequency of these events over time.
+# * Storms: The average number of severe storms shows an increasing trend, indicating a potential increase in the frequency of these events over time.
+
