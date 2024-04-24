@@ -233,10 +233,10 @@ plt.show()
 # %%[markdown]
 # Inference basis geospatial analysis
 # * Temperature Variability: Cities and regions exhibit varying average temperatures, with some regions experiencing consistently higher or lower temperatures compared to others. This variability could be due to geographical location, elevation, or other local climate factors.
-# * Snowfall Patterns: Similarly, there are differences in average snowfall across regions, with some areas experiencing heavier snowfall than others. This could be influenced by proximity to bodies of water, latitude, or elevation.
-# * Rainfall Distribution: Rainfall patterns also vary across regions, with some areas receiving higher average rainfall than others. This could be influenced by proximity to oceans or other large bodies of water, as well as local topography.
-# * Natural Disaster Frequency: The frequency of weather-related natural disasters varies across regions, with some areas experiencing more frequent disasters than others. This could be due to factors such as geographical location, climate, and susceptibility to certain types of disasters.
-# * Severe Storm Warnings: Similarly, the frequency of severe storm warnings varies across regions, with some areas experiencing more frequent warnings than others. This could be due to local climate conditions and susceptibility to severe weather events.
+# * Snowfall Patterns: Similarly, there are differences in average snowfall across regions and cities, with some areas experiencing heavier snowfall than others. This could be influenced by proximity to bodies of water, latitude, or elevation.
+# * Rainfall Distribution: Rainfall patterns also vary across regions and cities, with some areas receiving higher average rainfall than others. This could be influenced by proximity to oceans or other large bodies of water, as well as local topography.
+# * Natural Disaster Frequency: The frequency of weather-related natural disasters varies across regions and cities, with some areas experiencing more frequent disasters than others. This could be due to factors such as geographical location, climate, and susceptibility to certain types of disasters.
+# * Severe Storm Warnings: The frequency of severe storm warnings does not vary across regions and cities.
 
 #%%
 
