@@ -120,3 +120,122 @@ plt.show()
 # * Natural Disasters: The average number of natural disasters shows a steady trend with a a steep rise in the 2020, suggesting a potential increase in the frequency of these events over time.
 # * Storms: The average number of severe storms shows an increasing trend, indicating a potential increase in the frequency of these events over time.
 
+#%% 
+
+# Geospatial Analysis
+
+# Group by 'region9' and calculate mean for 'rainfall' and 'snowfall'
+geographical_analysis_region = df1.groupby(['region9'])[['rainfall', 'snowfall','c_temp','disasters','storms']].mean().reset_index()
+
+# Create a bar plot for mean rainfall by region9 
+plt.figure(figsize=(12, 6))
+sns.barplot(x='region9', y='rainfall', data=geographical_analysis_region)
+plt.title('Mean Rainfall by Region')
+plt.xlabel('Region')
+plt.ylabel('Mean Rainfall')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+# Create a bar plot for mean snowfall by region9 
+plt.figure(figsize=(12, 6))
+sns.barplot(x='region9', y='snowfall', data=geographical_analysis_region)
+plt.title('Mean Snowfall by Region')
+plt.xlabel('Region')
+plt.ylabel('Mean Snowfall')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+# Create a bar plot for mean temperature by region9 
+plt.figure(figsize=(12, 6))
+sns.barplot(x='region9', y='c_temp', data=geographical_analysis_region)
+plt.title('Mean Temperature by Region')
+plt.xlabel('Region')
+plt.ylabel('Mean Temperature')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+# Create a bar plot for mean number of disasters by region9 
+plt.figure(figsize=(12, 6))
+sns.barplot(x='region9', y='disasters', data=geographical_analysis_region)
+plt.title('Mean Disasters by Region')
+plt.xlabel('Region')
+plt.ylabel('Mean Disasters')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+# Create a bar plot for mean severe storm warnings by region9 
+plt.figure(figsize=(12, 6))
+sns.barplot(x='region9', y='storms', data=geographical_analysis_region)
+plt.title('Mean Severe Storm Warnings by Region')
+plt.xlabel('Region')
+plt.ylabel('Mean Storms')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+#Group by 'city' and calculate mean for 'rainfall' and 'snowfall'
+
+geographical_analysis_city = df1.groupby(['City'])[['rainfall', 'snowfall','c_temp','disasters','storms']].mean().reset_index()
+
+# Create a bar plot for mean rainfall by city
+plt.figure(figsize=(12, 6))
+sns.barplot(x='City', y='rainfall', data=geographical_analysis_city)
+plt.title('Mean Rainfall by City')
+plt.xlabel('City')
+plt.ylabel('Mean Rainfall')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+# Create a bar plot for mean snowfall by city
+plt.figure(figsize=(12, 6))
+sns.barplot(x='City', y='snowfall', data=geographical_analysis_city)
+plt.title('Mean Snowfall by City')
+plt.xlabel('City')
+plt.ylabel('Mean Snowfall')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+# Create a bar plot for mean temperature by city 
+plt.figure(figsize=(12, 6))
+sns.barplot(x='City', y='c_temp', data=geographical_analysis_city)
+plt.title('Mean Temperature by City')
+plt.xlabel('City')
+plt.ylabel('Mean Temperature')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+# Create a bar plot for mean number of disasters by city 
+plt.figure(figsize=(12, 6))
+sns.barplot(x='City', y='disasters', data=geographical_analysis_city)
+plt.title('Mean Disasters by City')
+plt.xlabel('City')
+plt.ylabel('Mean Disasters')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+# Create a bar plot for mean number of severe storm warnings by city
+plt.figure(figsize=(12, 6))
+sns.barplot(x='City', y='storms', data=geographical_analysis_city)
+plt.title('Mean Severe Storm Warnings by City')
+plt.xlabel('City')
+plt.ylabel('Mean Storms')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+# %%[markdown]
+# Inference basis geospatial analysis
+# * Temperature Variability: Cities and regions exhibit varying average temperatures, with some regions experiencing consistently higher or lower temperatures compared to others. This variability could be due to geographical location, elevation, or other local climate factors.
+# * Snowfall Patterns: Similarly, there are differences in average snowfall across regions, with some areas experiencing heavier snowfall than others. This could be influenced by proximity to bodies of water, latitude, or elevation.
+# * Rainfall Distribution: Rainfall patterns also vary across regions, with some areas receiving higher average rainfall than others. This could be influenced by proximity to oceans or other large bodies of water, as well as local topography.
+# * Natural Disaster Frequency: The frequency of weather-related natural disasters varies across regions, with some areas experiencing more frequent disasters than others. This could be due to factors such as geographical location, climate, and susceptibility to certain types of disasters.
+# * Severe Storm Warnings: Similarly, the frequency of severe storm warnings varies across regions, with some areas experiencing more frequent warnings than others. This could be due to local climate conditions and susceptibility to severe weather events.
+
+
