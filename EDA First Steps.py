@@ -281,11 +281,11 @@ sum(pca.explained_variance_ratio_)
 # potentially dummy_PCA if dummy_PCA2 is too annoying to work with
 # %%
 # Function to run t-tests
-def t_test2(cat, cont):
-  sample1_bool = df[cat] == 0
-  sample1 = df[sample1_bool][cont]
-  sample2_bool = df[cat] == 1
-  sample2 = df[sample2_bool][cont]
+def t_test2(data, cat, cont):
+  sample1_bool = data[cat] == 0
+  sample1 = data[sample1_bool][cont]
+  sample2_bool = data[cat] == 1
+  sample2 = data[sample2_bool][cont]
   stat, p = stats.ttest_ind(sample1, sample2)
   print(f"Stat: {stat:.2f}")
   print(f"p-value: {p:.2f}")
@@ -318,13 +318,13 @@ df_em = df[em_bool]
 # Happening
 for nums in num_cols:
   print(nums)
-  t_test2('happening', nums)
+  t_test2(df, 'happening', nums)
   print()
 # %%
 # Female
 for nums in num_cols:
   print(nums)
-  t_test2('female', nums)
+  t_test2(df, 'female', nums)
   print()
 # %%
 # ANOVA
@@ -513,11 +513,11 @@ def cohen_d(x,y):
 
 # %%
 # Restructuring t-test to incorporate effect size
-def t_test2(cat, cont):
-  sample1_bool = df[cat] == 0
-  sample1 = df[sample1_bool][cont]
-  sample2_bool = df[cat] == 1
-  sample2 = df[sample2_bool][cont]
+def t_test2(data, cat, cont):
+  sample1_bool = data[cat] == 0
+  sample1 = data[sample1_bool][cont]
+  sample2_bool = data[cat] == 1
+  sample2 = data[sample2_bool][cont]
   stat, p = stats.ttest_ind(sample1, sample2)
   e = cohen_d(sample1, sample2)
   print(f"Stat: {stat:.2f}")
@@ -528,13 +528,13 @@ def t_test2(cat, cont):
 # Happening
 for nums in num_cols:
   print(nums)
-  t_test2('happening', nums)
+  t_test2(df, 'happening', nums)
   print()
 # %%
 # Female
 for nums in num_cols:
   print(nums)
-  t_test2('female', nums)
+  t_test2(df, 'female', nums)
   print()
 
 #%%
