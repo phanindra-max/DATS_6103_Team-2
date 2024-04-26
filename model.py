@@ -35,7 +35,7 @@ df3 = cleaning[missing2]
 df = cleaning.copy(deep = True)
 
 df['month'] = df['wave'].str[0:3]
-df = df.drop(['wave', 'region9'], axis = 1)
+df = df.drop(['wave'], axis = 1)
 
 # %%
 # Now that missing values have been treated, we will dive more in depth to the summary statistics of each variable
@@ -248,6 +248,8 @@ print("Confusion Matrix:\n", conf_matrix)
 # report the classification metrics of only second class
 print("Classification Report:\n", class_report[1,0])
 print("Coefficients:", firth_model.coef_)
+# significance levels
+print("Significance Levels:", firth_model.coef_ / firth_model.coef_.sum())
 # %% [markdown]
 # So, now we have the base model which predicts at 0.733 accuracy. 
 # Now, let's try to answer the SMART goal questions one by one.
