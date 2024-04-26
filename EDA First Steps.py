@@ -11,6 +11,7 @@
 # * "df"
 # * "df_withdummies"
 # * "df_PCA"
+# * PCA_comps1 contains the coefficients for the PCA from the slides, while df_PCA contains the values for the principal components. Currently, the dataframe does not have the categorical variables, so those would need to be combined to make a larger dataframe
 # * "dummy_PCA"
 
 #%%
@@ -239,7 +240,7 @@ dummy_standard.head()
 # %%
 # Number of components chosen to provide 95% explained variance for the first analysis
 from sklearn.decomposition import PCA
-comp = 10
+comp = 5
 pca = PCA(n_components= comp)
 #%%
 df_PCA = pca.fit_transform(con_df_s)
@@ -252,7 +253,7 @@ PCA_comps1 = []
 PCA_comps1 =+ pca.components_
 PCA_comps1
 #%%
-comp = 10
+comp = 5
 pca = PCA(n_components= comp)
 dummy_PCA = pca.fit_transform(dummy_standard)
 dummy_PCA = pd.DataFrame(dummy_PCA)
@@ -536,4 +537,15 @@ for nums in num_cols:
   t_test2('female', nums)
   print()
 
-
+#%%
+#df_PCA.head()
+# %%
+#PCA_comps1
+# %%
+# Aligning PCA dataframe with overall dataframe
+df_PCA += 1
+#%%
+# Combining PCA dataframe with categorical variables
+df_pca_cat = pd.concat([df_PCA, cat_df], axis = 1)
+df_pca_catasdummies = pd.concat([df_PCA, cat_dummy_df], axis=1)
+#%%

@@ -261,4 +261,27 @@ print("Imbalance Ratio:", imbalance_ratio)
 # %%[markdown]
 #This indicates that the majority class (1.0) has approximately twice as many instances as the minority class (0.0)
 
+# %%
+
+
+# Question 1: Trend of global temperature changes vs. US opinion of climate change
+plt.figure(figsize=(12, 6))
+sns.lineplot(data=df1, x='year', y='g_temp', label='Global Temperature')
+sns.lineplot(data=df1, x='year', y='happening', label='US Opinion of Climate Change')
+plt.xlabel('Year')
+plt.ylabel('Value')
+plt.title('Global Temperature Changes vs. US Opinion of Climate Change')
+plt.legend()
+plt.show()
+#%%
+# Question 2: Relationship between temperature/rainfall and belief in climate change
+plt.figure(figsize=(12, 6))
+sns.scatterplot(data=df1, x='rainfall', y='c_temp',hue = 'happening')
+plt.xlabel('Rainfall')
+plt.ylabel('Temperature')
+plt.title('Temperature and Rainfall vs. Belief in Climate Change')
+plt.legend(title='happening')
+plt.show()
+
+
 
