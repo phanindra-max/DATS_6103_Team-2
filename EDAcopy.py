@@ -37,29 +37,18 @@ df1 = df1.drop(["Unnamed: 0", "case_ID"], axis = 1)
 # Check proportions of missing values
 col = df1.columns.to_list()
 
-for cols in col:
-  print(f"Percentage of missing values in {cols}: {100 * df1[cols].isna().sum() / len(df1)}")
 #%%[markdown]
 # Seems that many are missing the exact same percentage of values
 # %%
 missing1 = df1['year'].isna()
 df2 = df1[missing1]
-#%%
-# Checking if those missing values are missing in all columns
-for cols in col:
-  print(f"Percentage of missing values in {cols}: {100 * df2[cols].isna().sum() / len(df2)}")
+
 # %%[markdown]
 # Looks like they are, so we will move forward without those rows since they have no data in them
 # %%
 cleaning = df1[-missing1]
 #%%[markdown]
 # For marital status and employment, there were a higher number of missing values, so we'll check to see how many remain
-# %%
-for cols in col:
-  print(f"Percentage of missing values in {cols}: {100 * cleaning[cols].isna().sum() / len(cleaning)}")
-# %%
-for cols in col:
-  print(f"Summary Statistics for {cols}: {cleaning[cols].describe()}")
 
 
 # %%
@@ -67,9 +56,6 @@ missing2 = cleaning['marit_status'].isna()
 
 df3 = cleaning[missing2]
 
-#%%
-for cols in col:
-  print(f"Summary for {cols}: {df3[cols].describe()}")
 # %%[markdown]
 # After comparing the summary statistics of the missing values in marital and employment to the entire dataset, it seems that they stopped collecting marital and employment data for 2021 and onward, when analysing marital and employment data, our analysis will therefore be limited to those years.
 #%%
@@ -89,16 +75,6 @@ num_cols = ['age', 'c_temp', 'snowfall', 'rainfall', 'disasters', 'storms', 'spe
 cat_cols = ['happening', 'female', 'education', 'income', 'race', 'ideology', 'party', 'religion', 'marit_status', 'employment', 'City', 'year', 'month']
 
 
-#%%
-for cols in num_cols:
-  print(f"Summary Statistics for {cols}: {df[cols].describe()}")
-  print(f"")
-# %%
-for cols in cat_cols:
-  print(f"Summary Statistics for {cols}")
-  print(f"Mode: {statistics.mode(df[cols])}")
-  print(f"Frequency of each unique category: {df[cols].value_counts()}")
-  print(f"")
 # %%[markdown]
 # It seems that 1 row of the income variable was incorrectly entered and only kept the last two digits instead of the full category (99 instead of $35,000 to $39,999 for example).  
 # We will replace this value with the mode of income
@@ -107,11 +83,6 @@ incomecheck = df['income'] == "99"
 df[incomecheck]['income']
 # %%
 df.iloc[30041, 5] = statistics.mode(df['income'])
-#%%
-# Visualizing distributions
-for cols in num_cols:
-    sns.histplot(data= df, x = cols, bins = 15)
-    plt.show()
 
 #%%
 # Checking outliers in odd looking distributions, such as spending
@@ -122,11 +93,7 @@ df[spendingcheck]['spending']
 #%%[markdown]
 # It appears that age is relatively normally distributed. Some of the variables are rather skewed, such as snowfall, adults, children, spending, disasters, and population. 
 # QQplots for numeric variables
-# %%
-for cols in num_cols:
-  sm.qqplot(df[cols], line= 's')
-  py.title(f"{cols}") 
-  py.show()   
+ 
 # %%[markdown]
 # As you can see, many of the numeric variables are heavily skewed, and not normally distributed
 #%%
@@ -183,12 +150,6 @@ df['month'] = df['month'].astype(order_month)
 df['year'] = df['year'].astype("int")
 df['female'] = df['female'].astype("int")
 df['happening'] = df['happening'].astype("int")
-# %%
-for cols in cat_cols:
-  sns.countplot(data= df, y = cols)
-  plt.show()
-# %%[markdown]
-# Our categorical variables have a variety of distributions, most of which are not evenly spread between categories. Gender, however, is a roughly 50/50 split, and the year variable has similar frequencies from 2008 to 2021, but drops off in 2022. All of our other variables, however, have significant amounts of variation in the frequency of each category. Notably, our outcome variable, opinion on whether climate change is or is not happening, is a roughly 67/33 split, with roughly two thirds of all respondents from between 2008 to 2023 believing in climate change.
 
 # %%
 # Feature Engineering for model building
@@ -283,261 +244,3 @@ sum(pca.explained_variance_ratio_)
 # dummy_PCA2
 # potentially dummy_PCA if dummy_PCA2 is too annoying to work with
 # %%
-# Function to run t-tests
-def t_test2(cat, cont):
-  sample1_bool = df[cat] == 0
-  sample1 = df[sample1_bool][cont]
-  sample2_bool = df[cat] == 1
-  sample2 = df[sample2_bool][cont]
-  stat, p = stats.ttest_ind(sample1, sample2)
-  print(f"Stat: {stat:.2f}")
-  print(f"p-value: {p:.2f}")
-  return
-# %%
-# t_test2('happening', 'age')
-# %%
-# Function to run anova
-def anova(data, cat, cont):
-  groups = list(data[cat].unique())
-  var = []
-  for group in groups:
-    bool = data[cat] == group
-    slices = data[bool][cont]
-    var.append(slices)
-  stat, p = stats.f_oneway(*var)
-  print(f"Stat: {stat:.2f}")
-  print(f"p-value: {p:.2f}")
-  return
-#%%
-# anova(df, 'income', 'age')
-#%%
-# Because of missing values in Marital Status and Employment, they need to be treated differently
-# Marital Status
-em_bool = df['year'] < 2021
-df_em = df[em_bool]
-#%%
-#%%
-# T-tests
-# Happening
-for nums in num_cols:
-  print(nums)
-  t_test2('happening', nums)
-  print()
-# %%
-# Female
-for nums in num_cols:
-  print(nums)
-  t_test2('female', nums)
-  print()
-# %%
-# ANOVA
-# Education
-for nums in num_cols:
-  print(nums)
-  anova(df, 'education', nums)
-  print()
-#%%
-# Income
-for nums in num_cols:
-  print(nums)
-  anova(df, 'income', nums)
-  print()
-#%%
-# Race
-for nums in num_cols:
-  print(nums)
-  anova(df, 'race', nums)
-  print()
-#%%
-# Ideology
-for nums in num_cols:
-  print(nums)
-  anova(df, 'ideology', nums)
-  print()
-#%%
-# Party
-for nums in num_cols:
-  print(nums)
-  anova(df, 'party', nums)
-  print()
-#%%
-# Religion
-for nums in num_cols:
-  print(nums)
-  anova(df, 'religion', nums)
-  print()
-#%%
-# Marital Status
-for nums in num_cols:
-  print(nums)
-  anova(df_em, 'marit_status', nums)
-  print()
-#%%
-# Employment
-for nums in num_cols:
-  print(nums)
-  anova(df_em, 'employment', nums)
-  print()
-
-#%%
-# City
-for nums in num_cols:
-  print(nums)
-  anova(df, 'City', nums)
-  print()
-#%%
-# Year
-for nums in num_cols:
-  print(nums)
-  anova(df, 'year', nums)
-  print()
-#%%
-# Month
-for nums in num_cols:
-  print(nums)
-  anova(df, 'month', nums)
-  print()
-# %%[markdown]
-# Investigating the results of our tests
-# It seems that the vast majority of all tests were significant, so I want to see if there are any structural properites of our data that would lead to that
-
-#%%[markdown]
-# It seems that global temp varies by city, which doesn't make sense, so let's look at these variables
-#%%
-sns.violinplot(df, x = 'g_temp', y= 'City')
-#%%[markdown]
-# Perhaps cities are being surveyed in different years, which could lead to some sort of effect like this
-sns.countplot(df, y = 'City', hue = 'year')
-
-#%%[markdown]
-# Based on the above visualizations, it seems that perhaps the differences we are detecting do exist, but perhaps they are simply small, but are relayed as significant because of our large sample size
-#%%
-# Measuring effect size
-from statsmodels.stats.oneway import effectsize_oneway
-#%%
-def anova(data, cat, cont):
-  groups = list(data[cat].unique())
-  var = []
-  for group in groups:
-    bool = data[cat] == group
-    slices = data[bool][cont]
-    var.append(slices)
-  stat, p = stats.f_oneway(*var)
-  means = []
-  variance = []
-  for vars in var:
-    m = statistics.mean(vars)
-    means.append(m)
-    v = statistics.variance(vars)
-    variance.append(v)
-  e = effectsize_oneway(means, variance, nobs= len(data), use_var="equal") 
-  print(f"Stat: {stat:.2f}")
-  print(f"p-value: {p:.2f}")
-  print(f"Effect size: {e:.2f}")
-  return
-#%%
-# Rerunning ANOVA to include effect sizes
-# Education
-for nums in num_cols:
-  print(nums)
-  anova(df, 'education', nums)
-  print()
-#%%
-# Income
-for nums in num_cols:
-  print(nums)
-  anova(df, 'income', nums)
-  print()
-#%%
-num_cols
-#%%
-# Race
-for nums in num_cols:
-  print(nums)
-  anova(df, 'race', nums)
-  print()
-#%%
-# Ideology
-for nums in num_cols:
-  print(nums)
-  anova(df, 'ideology', nums)
-  print()
-#%%
-# Party
-for nums in num_cols:
-  print(nums)
-  anova(df, 'party', nums)
-  print()
-#%%
-# Religion
-for nums in num_cols:
-  print(nums)
-  anova(df, 'religion', nums)
-  print()
-#%%
-# Marital Status
-for nums in num_cols:
-  print(nums)
-  anova(df_em, 'marit_status', nums)
-  print()
-#%%
-# Employment
-for nums in num_cols:
-  print(nums)
-  anova(df_em, 'employment', nums)
-  print()
-
-#%%
-# City
-for nums in num_cols:
-  print(nums)
-  anova(df, 'City', nums)
-  print()
-#%%
-# Year
-for nums in num_cols:
-  print(nums)
-  anova(df, 'year', nums)
-  print()
-#%%
-# Month
-for nums in num_cols:
-  print(nums)
-  anova(df, 'month', nums)
-  print()
-# %%
-# Create function to calculate t-test effect size
-from numpy import std, mean, sqrt
-def cohen_d(x,y):
-    nx = len(x)
-    ny = len(y)
-    dof = nx + ny - 2
-    return (mean(x) - mean(y)) / sqrt(((nx-1)*std(x, ddof=1) ** 2 + (ny-1)*std(y, ddof=1) ** 2) / dof)
-
-# %%
-# Restructuring t-test to incorporate effect size
-def t_test2(cat, cont):
-  sample1_bool = df[cat] == 0
-  sample1 = df[sample1_bool][cont]
-  sample2_bool = df[cat] == 1
-  sample2 = df[sample2_bool][cont]
-  stat, p = stats.ttest_ind(sample1, sample2)
-  e = cohen_d(sample1, sample2)
-  print(f"Stat: {stat:.2f}")
-  print(f"p-value: {p:.2f}")
-  print(f"Effect size: {e:.2f}")
-  return
-# %%
-# Happening
-for nums in num_cols:
-  print(nums)
-  t_test2('happening', nums)
-  print()
-# %%
-# Female
-for nums in num_cols:
-  print(nums)
-  t_test2('female', nums)
-  print()
-
-
