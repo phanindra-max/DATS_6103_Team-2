@@ -159,211 +159,76 @@ df_withdummies.columns
 
 
 # %%
-# Base model with standardized the data
 from sklearn.preprocessing import StandardScaler
 scaler = StandardScaler()
+
+#%%
+# Model building function
+def train_and_evaluate_model(X, y):
+    X = scaler.fit_transform(X)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    firth_model = LogisticRegressionCV(penalty='l1', solver='saga', cv=5, random_state=42, max_iter=1000)
+    firth_model.fit(X_train, y_train)
+
+    y_pred = firth_model.predict(X_test)
+
+    accuracy = accuracy_score(y_test, y_pred)
+    conf_matrix = confusion_matrix(y_test, y_pred)
+    class_report = classification_report(y_test, y_pred)
+
+    print("Accuracy:", accuracy)
+    print("Confusion Matrix:\n", conf_matrix)
+    print("Classification Report:\n", class_report)
+    print("Coefficients:", firth_model.coef_)
+
+#%%
+# Base model with standardized the data
 # Selecting female, age, education level, income, race, ideology, party, religion, year, location for the base model
 X = df_withdummies.drop(['happening', 'rainfall', 'snowfall', 'population', 'el_nino', 'c_temp', 'g_temp', 'storms', 'disasters', 'spending'], axis=1)
-X = scaler.fit_transform(X)
 y = df_withdummies['happening']
-
-# Split the data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-# Fit Firth's logistic regression model
-firth_model = LogisticRegressionCV(penalty='l1', solver='saga', cv=5, random_state=42, max_iter=1000)
-firth_model.fit(X_train, y_train)
-
-# Make predictions on the testing set
-y_pred = firth_model.predict(X_test)
-
-# Calculate accuracy, confusion matrix, and classification report
-accuracy = accuracy_score(y_test, y_pred)
-conf_matrix = confusion_matrix(y_test, y_pred)
-class_report = classification_report(y_test, y_pred)
-
-print("Accuracy:", accuracy)
-print("Confusion Matrix:\n", conf_matrix)
-print("Classification Report:\n", class_report)
-print("Coefficients:", firth_model.coef_)
-# %% [markdown]
-# So, now we have the base model which predicts at 0.725 accuracy. 
-# Now, let's try to answer the SMART goal questions one by one.
-
-# %%
-# Q1: How have global temperature changes impacted US opinion of the existence of climate change since 2000?
-# Base model + g_temp
-X = df_withdummies.drop(['happening', 'rainfall', 'snowfall', 'population', 'el_nino', 'c_temp',
-       'storms', 'disasters', 'spending'], axis=1)
-
-X.columns
-#%%
-X = scaler.fit_transform(X)
-y = df_withdummies['happening']
-
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-firth_model = LogisticRegressionCV(penalty='l1', solver='saga', cv=5, random_state=42, max_iter=1000)
-firth_model.fit(X_train, y_train)
-
-y_pred = firth_model.predict(X_test)
-
-accuracy = accuracy_score(y_test, y_pred)
-conf_matrix = confusion_matrix(y_test, y_pred)
-class_report = classification_report(y_test, y_pred)
-
-print("Accuracy:", accuracy)
-print("Confusion Matrix:\n", conf_matrix)
-print("Classification Report:\n", class_report)
-print("Coefficients:", firth_model.coef_)
+print('Base Model: \n')
+train_and_evaluate_model(X, y)
 
 # %%
 # Q2: How has temperature and rainfall impacted the perception of climate change occurring in individuals in the US since 2000?
 # base model + rainfall
+print('Q2 Model with `rainfall`: \n')
 X = df_withdummies.drop(['happening', 'snowfall', 'population', 'el_nino', 'g_temp', 'c_temp',
        'storms', 'disasters', 'spending'], axis=1)
-X.columns
+train_and_evaluate_model(X, y)
 #%%
-X = scaler.fit_transform(X)
-
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-firth_model = LogisticRegressionCV(penalty='l1', solver='saga', cv=5, random_state=42, max_iter=1000)
-firth_model.fit(X_train, y_train)
-
-y_pred = firth_model.predict(X_test)
-
-accuracy = accuracy_score(y_test, y_pred)
-conf_matrix = confusion_matrix(y_test, y_pred)
-class_report = classification_report(y_test, y_pred)
-
-print("Accuracy:", accuracy)
-print("Confusion Matrix:\n", conf_matrix)
-print("Classification Report:\n", class_report)
-print("Coefficients:", firth_model.coef_)
-
 # base model +  c_temp
+print('Q2 Model with `c_temp`: \n')
 X = df_withdummies.drop(['happening', 'rainfall', 'snowfall', 'population', 'el_nino', 'g_temp',
        'storms', 'disasters', 'spending'], axis=1)
-X.columns
-#%%
-X = scaler.fit_transform(X)
-
-
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-firth_model = LogisticRegressionCV(penalty='l1', solver='saga', cv=5, random_state=42, max_iter=1000)
-firth_model.fit(X_train, y_train)
-
-y_pred = firth_model.predict(X_test)
-
-accuracy = accuracy_score(y_test, y_pred)
-conf_matrix = confusion_matrix(y_test, y_pred)
-class_report = classification_report(y_test, y_pred)
-
-print("Accuracy:", accuracy)
-print("Confusion Matrix:\n", conf_matrix)
-print("Classification Report:\n", class_report)
-print("Coefficients:", firth_model.coef_)
-
+train_and_evaluate_model(X, y)
 
 # %%
 # Q3: How has the El Nino/La Nina weather pattern impacted public perception of climate change since 2000?
 # base model + el_nino
+print('Q3 Model: \n')
 X = df_withdummies.drop(['happening', 'rainfall', 'snowfall', 'population', 'c_temp', 'g_temp',
        'storms', 'disasters', 'spending'], axis=1)
-X.columns
-#%%
-X = scaler.fit_transform(X)
-
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-firth_model = LogisticRegressionCV(penalty='l1', solver='saga', cv=5, random_state=42, max_iter=1000)
-firth_model.fit(X_train, y_train)
-
-y_pred = firth_model.predict(X_test)
-
-accuracy = accuracy_score(y_test, y_pred)
-conf_matrix = confusion_matrix(y_test, y_pred)
-class_report = classification_report(y_test, y_pred)
-
-print("Accuracy:", accuracy)
-print("Confusion Matrix:\n", conf_matrix)
-print("Classification Report:\n",
-class_report)
-print("Coefficients:", firth_model.coef_)
-
+train_and_evaluate_model(X, y)
 # %%
 # Q4: How have weather patterns impacted the perceptions of climate change among different political and socio-economic groups since 2000?
 # base model + rainfall + el+nino + g_temp
+print('Q4 Model with `rainfall`, `el_nino`, and `g_temp`: \n')
 X = df_withdummies.drop(['happening', 'snowfall', 'population', 'c_temp',
        'storms', 'disasters', 'spending'], axis=1)
-X.columns
-#%%
-X = scaler.fit_transform(X)
-
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-firth_model = LogisticRegressionCV(penalty='l1', solver='saga', cv=5, random_state=42, max_iter=1000)
-firth_model.fit(X_train, y_train)
-
-y_pred = firth_model.predict(X_test)
-
-accuracy = accuracy_score(y_test, y_pred)
-conf_matrix = confusion_matrix(y_test, y_pred)
-class_report = classification_report(y_test, y_pred)
-
-print("Accuracy:", accuracy)
-print("Confusion Matrix:\n", conf_matrix)
-print("Classification Report:\n", class_report)
-print("Coefficients:", firth_model.coef_)
+train_and_evaluate_model(X, y)
 
 # base model + c_temp + el_nino
+print('Q4 Model with `c_temp` and `el_nino`: \n')
 X = df_withdummies.drop(['happening', 'rainfall', 'snowfall', 'population', 'g_temp',
       'storms', 'disasters', 'spending'], axis=1)
-X = scaler.fit_transform(X)
-
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-firth_model = LogisticRegressionCV(penalty='l1', solver='saga', cv=5, random_state=42, max_iter=1000)
-firth_model.fit(X_train, y_train)
-
-y_pred = firth_model.predict(X_test)
-
-accuracy = accuracy_score(y_test, y_pred)
-conf_matrix = confusion_matrix(y_test, y_pred)
-class_report = classification_report(y_test, y_pred)
-
-print("Accuracy:", accuracy)
-print("Confusion Matrix:\n", conf_matrix)
-print("Classification Report:\n", class_report)
-
-
+train_and_evaluate_model(X, y)
 
 # %%
 # Q5: How has extreme weather impacted public perception of climate change since 2000?
 # base model + storms + disasters + spending
+print('Q5 Model: \n')
 X = df_withdummies.drop(['happening', 'rainfall', 'snowfall', 'population', 'el_nino', 'c_temp', 'g_temp'], axis=1)
-X.columns
-#%%
-X = scaler.fit_transform(X)
-
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-firth_model = LogisticRegressionCV(penalty='l1', solver='saga', cv=5, random_state=42, max_iter=1000)
-
-firth_model.fit(X_train, y_train)
-
-y_pred = firth_model.predict(X_test)
-
-accuracy = accuracy_score(y_test, y_pred)
-conf_matrix = confusion_matrix(y_test, y_pred)
-class_report = classification_report(y_test, y_pred)
-
-print("Accuracy:", accuracy)
-print("Confusion Matrix:\n", conf_matrix)
-print("Classification Report:\n", class_report)
-print("Coefficients:", firth_model.coef_)
-print("Signi")
-
+train_and_evaluate_model(X, y)
 # %%
