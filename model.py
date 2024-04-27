@@ -23,13 +23,6 @@ df2 = df1[missing1]
 # %%
 cleaning = df1[-missing1]
 
-
-# %%
-missing2 = cleaning['marit_status'].isna()
-
-df3 = cleaning[missing2]
-
-
 #%%
 # Our final dataset will be a copy of the cleaned dataset
 df = cleaning.copy(deep = True)
@@ -38,13 +31,38 @@ df['month'] = df['wave'].str[0:3]
 df = df.drop(['wave'], axis = 1)
 
 # %%
+# Let's check the columsn in df
+df.columns
+#%%
 # Now that missing values have been treated, we will dive more in depth to the summary statistics of each variable
 # Beginning with numeric variables:
 num_cols = ['age', 'c_temp', 'snowfall', 'rainfall', 'disasters', 'storms', 'spending', 'el_nino', 'g_temp', 'g_temp_lowess', 'children', 'adults', 'population']
 # Case_ID is not on this list, as it seems to be another index column that does not provide any useful information
-cat_cols = ['happening', 'female', 'education', 'income', 'race', 'ideology', 'party', 'religion', 'marit_status', 'employment', 'City', 'year', 'month']
+cat_cols = ['happening', 'female', 'education', 'income', 'race', 'ideology', 'party', 'religion', 'marit_status', 'employment', 'City', 'year', 'month', 'region9']
+
+# Select the desired columns from the original DataFrame
+desired_columns = [col for col in num_cols + cat_cols if col not in ['education', 'marit_status', 'employment']]
+df_clean = df.loc[:, desired_columns].copy()
+print(df_clean['region9'].unique())
 
 
+#%%
+# Binary reduction for specific categorical columns
+binary_reductions = {
+    'religion': ['Other Christian', 'Catholic'],
+    'race': ['White, Non-Hispanic'],
+    'ideology': ['Somewhat conservative', 'Very conservative'],
+    'party': ['Democrat']
+}
+
+for col, cat_vals in binary_reductions.items():
+    if col in df_clean.columns:
+        df_clean.loc[:, col] = df_clean[col].isin(cat_vals).astype(int)
+    else:
+        print(f"Column '{col}' not found in the DataFrame. Skipping binary reduction.")
+
+print(df_clean)
+df = df_clean.copy(deep=True)
 # %%[markdown]
 # It seems that 1 row of the income variable was incorrectly entered and only kept the last two digits instead of the full category (99 instead of $35,000 to $39,999 for example).  
 # We will replace this value with the mode of income
@@ -53,12 +71,8 @@ incomecheck = df['income'] == "99"
 df[incomecheck]['income']
 # %%
 import statistics
-df.iloc[30041, 5] = statistics.mode(df['income'])
-
-#%%
-spendingcheck = df['spending'] > 5000
-df[spendingcheck]['spending']
-# It seems like there are genuinely several rows with high spending, and this variable is just very thinly distributed with a massive spike at 0. 
+mode_income = df['income'].mode()[0]
+df.loc[df['income'] == "99", 'income'] = mode_income
 # %%
 df['income'] = df['income'].astype("category")
 # %%
@@ -87,23 +101,6 @@ cats_income = ["Less than $5,000",
 df['income_encoded'] = df['income'].apply(lambda x: 0 if x in cats_income[:11] else 1)
 
 #%%
-cats_education = ["Bachelor's degree or higher",
-                  "Some college",
-                  "High school",
-                  "Less than high school"]
-order_education = pd.CategoricalDtype(cats_education, ordered=True)
-df['education'] = df['education'].astype(order_education)
-#%%
-cats_employ = ["Working - as a paid employee",
-               "Working - self-employed",
-               "Not working - on temporary layoff from a job",
-               "Not working - looking for work",
-               "Not working - disabled",
-               "Not working - retired",
-               "Not working - other"]
-order_employ = pd.CategoricalDtype(cats_employ, ordered=True)
-df['employment'] = df['employment'].astype(order_employ)
-#%%
 cats_month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 order_month = pd.CategoricalDtype(cats_month, ordered=True)
 df['month'] = df['month'].astype(order_month)
@@ -116,91 +113,37 @@ df['happening'] = df['happening'].astype("int")
 # Creating dummy variables for categorical variables
 dummies = []
 dummy_cat_cols = cat_cols.copy()
+print(dummy_cat_cols)
 dummy_cat_cols.remove('female')
 dummy_cat_cols.remove('happening')
 dummy_cat_cols.remove('year')
+dummy_cat_cols.remove('education')
+dummy_cat_cols.remove('marit_status')
+dummy_cat_cols.remove('employment')
+
+# Remove binary reduced columns from dummy_cat_cols
+for col in binary_reductions.keys():
+    if col in dummy_cat_cols:
+        dummy_cat_cols.remove(col)
+
 #%%
 for cols in dummy_cat_cols:
   cols_dummy = pd.get_dummies(df[cols],
                                 drop_first=True,
                                 dtype = int)
   dummies.append(cols_dummy)
+print(len(dummies))
 
-# len(dummies)
-# %%
-df_withdummies = pd.concat([df.drop(dummy_cat_cols, axis = 1), dummies[0], dummies[1], dummies[2], dummies[3], dummies[4], dummies[5], dummies[6], dummies[7], dummies[8], dummies[9]], axis = 1)
-#%%
-# Creating Principal Components for PCA
-from sklearn.preprocessing import StandardScaler
-sc = StandardScaler()
-con_df = df[num_cols]
-cat_df = df[cat_cols]
-cat_dummy_df = df_withdummies.drop(num_cols, axis=1)
-#%%
-con_df_s = sc.fit_transform(con_df)
-# %%
-con_df_s = pd.DataFrame(con_df_s)
-con_df_s = con_df_s.rename(columns={0:"age", 
-                         1:"c_temp",
-                         2:"snowfall",
-                         3:"rainfall",
-                         4:"disasters",
-                         5:"storms",
-                         6:"spending",
-                         7:"el_nino",
-                         8:"g_temp",
-                         9:"g_temp_lowess",
-                         10:"children",
-                         11:"adults",
-                         12:"population"})
-# %%
-con_df_s.index += 1
-#%%
-df_standard = pd.concat([con_df_s, cat_df], axis = 1)
-dummy_standard = pd.concat([con_df_s, cat_dummy_df], axis = 1)
-# %%
-df_standard.head()
-dummy_standard.head()
-#%%
-from sklearn.decomposition import PCA
-comp = 10
-pca = PCA(n_components= comp)
-#%%
-df_PCA = pca.fit_transform(con_df_s)
-df_PCA = pd.DataFrame(df_PCA)
-pca.explained_variance_ratio_
-#%%
-sum(pca.explained_variance_ratio_)
-#%%
-PCA_comps1 = []
-PCA_comps1 =+ pca.components_
-PCA_comps1
-#%%
-comp = 10
-pca = PCA(n_components= comp)
-dummy_PCA = pca.fit_transform(dummy_standard)
-dummy_PCA = pd.DataFrame(dummy_PCA)
-sum(pca.explained_variance_ratio_)
-# %%
-PCA_comps2 = []
-PCA_comps2 =+ pca.components_
-PCA_comps2[0]
-# %%
-comp = 40
-pca = PCA(n_components= comp)
-dummy_PCA2 = pca.fit_transform(dummy_standard)
-dummy_PCA2 = pd.DataFrame(dummy_PCA2)
-sum(pca.explained_variance_ratio_)
-# %%[markdown]
-# Dataframes ready to use for modeling
-# df
-# df_withdummies
-# df_PCA
-# dummy_PCA2
-# potentially dummy_PCA if dummy_PCA2 is too annoying to work with
+df_withdummies = pd.concat([df.drop(dummy_cat_cols, axis=1), *dummies], axis=1)
+df_withdummies.drop(['g_temp_lowess', 'children', 'adults'], axis=1, inplace=True)
+print(df_withdummies.columns)
 
-
-df_withdummies["Conservative"] = np.where((df_withdummies['Somewhat conservative'] == 1) | (df_withdummies['Very conservative'] == 1), 1, 0)
+# %%
+df_withdummies = pd.concat([df.drop(dummy_cat_cols, axis = 1), dummies[0], dummies[1], dummies[2], dummies[3]], axis = 1)
+print(df_withdummies.columns)
+df_withdummies.drop(['g_temp_lowess', 'children', 'adults'], axis = 1, inplace = True)
+df_withdummies.columns
+#%%
 df_withdummies.drop(['$12,500 to $14,999', '$15,000 to $19,999', '$20,000 to $24,999',
        '$25,000 to $29,999', '$30,000 to $34,999', '$35,000 to $39,999',
        '$40,000 to $49,999', '$5,000 to $7,499', '$50,000 to $59,999',
@@ -208,23 +151,19 @@ df_withdummies.drop(['$12,500 to $14,999', '$15,000 to $19,999', '$20,000 to $24
        '$85,000 to $99,999', 'Less than $5,000','$100,000 to $124,999', '$125,000 to $149,999',
        '$150,000 to $174,999',
        '$175,000 to $199,999 (Nov 2016 on); $175,000 or more (Nov 2008 - Mar 2016)',
-       '$200,000 to $249,999 (Nov 2016 on)', '$250,000 or more (Nov 2016 on)', 'Living with partner', 'Married', 'Never married',
-       'Separated', 'Widowed', 'Working - self-employed',
-       'Not working - on temporary layoff from a job',
-       'Not working - looking for work', 'Not working - disabled',
-       'Not working - retired', 'Not working - other', 'Chicago', 'Houston',
+       '$200,000 to $249,999 (Nov 2016 on)', '$250,000 or more (Nov 2016 on)', 'Chicago', 'Houston',
        'Jacksonville', 'Kansas City', 'Los Angeles', 'Nashville',
        'New York City', 'Phoenix', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
        'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], axis = 1, inplace = True)
 df_withdummies.columns
+
 
 # %%
 # Base model with standardized the data
 from sklearn.preprocessing import StandardScaler
 scaler = StandardScaler()
 # Selecting female, age, education level, income, race, ideology, party, religion, year, location for the base model
-X = df_withdummies.drop(['happening', 'rainfall', 'children', 'snowfall', 'adults', 'population', 'el_nino', 'c_temp', 'g_temp',
-       'g_temp_lowess', 'storms', 'disasters', 'spending'], axis=1)
+X = df_withdummies.drop(['happening', 'rainfall', 'snowfall', 'population', 'el_nino', 'c_temp', 'g_temp', 'storms', 'disasters', 'spending'], axis=1)
 X = scaler.fit_transform(X)
 y = df_withdummies['happening']
 
@@ -245,20 +184,17 @@ class_report = classification_report(y_test, y_pred)
 
 print("Accuracy:", accuracy)
 print("Confusion Matrix:\n", conf_matrix)
-# report the classification metrics of only second class
-print("Classification Report:\n", class_report[1,0])
+print("Classification Report:\n", class_report)
 print("Coefficients:", firth_model.coef_)
-# significance levels
-print("Significance Levels:", firth_model.coef_ / firth_model.coef_.sum())
 # %% [markdown]
-# So, now we have the base model which predicts at 0.733 accuracy. 
+# So, now we have the base model which predicts at 0.725 accuracy. 
 # Now, let's try to answer the SMART goal questions one by one.
 
 # %%
 # Q1: How have global temperature changes impacted US opinion of the existence of climate change since 2000?
 # Base model + g_temp
-X = df_withdummies.drop(['happening', 'rainfall', 'children', 'snowfall', 'adults', 'population', 'el_nino', 'c_temp',
-       'g_temp_lowess', 'storms', 'disasters', 'spending'], axis=1)
+X = df_withdummies.drop(['happening', 'rainfall', 'snowfall', 'population', 'el_nino', 'c_temp',
+       'storms', 'disasters', 'spending'], axis=1)
 
 X.columns
 #%%
@@ -284,8 +220,8 @@ print("Coefficients:", firth_model.coef_)
 # %%
 # Q2: How has temperature and rainfall impacted the perception of climate change occurring in individuals in the US since 2000?
 # base model + rainfall
-X = df_withdummies.drop(['happening', 'children', 'snowfall', 'adults', 'population', 'el_nino', 'g_temp', 'c_temp',
-       'g_temp_lowess', 'storms', 'disasters', 'spending'], axis=1)
+X = df_withdummies.drop(['happening', 'snowfall', 'population', 'el_nino', 'g_temp', 'c_temp',
+       'storms', 'disasters', 'spending'], axis=1)
 X.columns
 #%%
 X = scaler.fit_transform(X)
@@ -307,8 +243,8 @@ print("Classification Report:\n", class_report)
 print("Coefficients:", firth_model.coef_)
 
 # base model +  c_temp
-X = df_withdummies.drop(['happening', 'rainfall', 'children', 'snowfall', 'adults', 'population', 'el_nino', 'g_temp',
-       'g_temp_lowess', 'storms', 'disasters', 'spending'], axis=1)
+X = df_withdummies.drop(['happening', 'rainfall', 'snowfall', 'population', 'el_nino', 'g_temp',
+       'storms', 'disasters', 'spending'], axis=1)
 X.columns
 #%%
 X = scaler.fit_transform(X)
@@ -334,8 +270,8 @@ print("Coefficients:", firth_model.coef_)
 # %%
 # Q3: How has the El Nino/La Nina weather pattern impacted public perception of climate change since 2000?
 # base model + el_nino
-X = df_withdummies.drop(['happening', 'rainfall', 'children', 'snowfall', 'adults', 'population', 'c_temp', 'g_temp',
-       'g_temp_lowess', 'storms', 'disasters', 'spending'], axis=1)
+X = df_withdummies.drop(['happening', 'rainfall', 'snowfall', 'population', 'c_temp', 'g_temp',
+       'storms', 'disasters', 'spending'], axis=1)
 X.columns
 #%%
 X = scaler.fit_transform(X)
@@ -360,8 +296,8 @@ print("Coefficients:", firth_model.coef_)
 # %%
 # Q4: How have weather patterns impacted the perceptions of climate change among different political and socio-economic groups since 2000?
 # base model + rainfall + el+nino + g_temp
-X = df_withdummies.drop(['happening', 'children', 'snowfall', 'adults', 'population', 'c_temp',
-       'g_temp_lowess', 'storms', 'disasters', 'spending'], axis=1)
+X = df_withdummies.drop(['happening', 'snowfall', 'population', 'c_temp',
+       'storms', 'disasters', 'spending'], axis=1)
 X.columns
 #%%
 X = scaler.fit_transform(X)
@@ -383,8 +319,8 @@ print("Classification Report:\n", class_report)
 print("Coefficients:", firth_model.coef_)
 
 # base model + c_temp + el_nino
-X = df_withdummies.drop(['happening', 'rainfall', 'children', 'snowfall', 'adults', 'population', 'g_temp',
-       'g_temp_lowess', 'storms', 'disasters', 'spending'], axis=1)
+X = df_withdummies.drop(['happening', 'rainfall', 'snowfall', 'population', 'g_temp',
+      'storms', 'disasters', 'spending'], axis=1)
 X = scaler.fit_transform(X)
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
@@ -407,8 +343,7 @@ print("Classification Report:\n", class_report)
 # %%
 # Q5: How has extreme weather impacted public perception of climate change since 2000?
 # base model + storms + disasters + spending
-X = df_withdummies.drop(['happening', 'rainfall', 'children', 'snowfall', 'adults', 'population', 'el_nino', 'c_temp', 'g_temp',
-       'g_temp_lowess'], axis=1)
+X = df_withdummies.drop(['happening', 'rainfall', 'snowfall', 'population', 'el_nino', 'c_temp', 'g_temp'], axis=1)
 X.columns
 #%%
 X = scaler.fit_transform(X)
