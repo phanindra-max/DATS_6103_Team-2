@@ -884,15 +884,12 @@ df_withdummies.drop(['$12,500 to $14,999', '$15,000 to $19,999', '$20,000 to $24
        'Jacksonville', 'Kansas City', 'Los Angeles', 'Nashville',
        'New York City', 'Phoenix', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
        'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], axis = 1, inplace = True)
-df_withdummies.columns
-
-
-# %%
-
+print("Base model variables:\n", df_withdummies.columns)
 
 #%%
 # Model building function
 def train_and_evaluate_model(X, y):
+    column_names = X.columns
     X = scaler.fit_transform(X)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
@@ -908,28 +905,36 @@ def train_and_evaluate_model(X, y):
     print("Accuracy:", accuracy)
     print("Confusion Matrix:\n", conf_matrix)
     print("Classification Report:\n", class_report)
-    print("Coefficients:", firth_model.coef_)
+    # print coefficients of each feature in the model in a clear format
+    for i, col in enumerate(column_names):
+        print(col, firth_model.coef_[0][i])
+    print("Intercept:", firth_model.intercept_)
 
 #%%
 # Base model with standardized the data
 # Selecting female, age, education level, income, race, ideology, party, religion, year, location for the base model
 X = df_withdummies.drop(['happening', 'rainfall', 'snowfall', 'population', 'el_nino', 'c_temp', 'g_temp', 'storms', 'disasters', 'spending'], axis=1)
+print(X.columns)
 y = df_withdummies['happening']
 print('Base Model: \n')
 train_and_evaluate_model(X, y)
 
+#%%
+# Q1: How have global temperature changes impacted opinion of the existence of climate change since 2008 in the United States?
+# base model + g_temp
+X = df_withdummies.drop(['happening', 'rainfall', 'snowfall', 'population', 'el_nino', 'c_temp', 'storms', 'disasters', 'spending'], axis=1)
+print(X.columns)
+y = df_withdummies['happening']
+print('Q1 Model with g_temp: \n')
+train_and_evaluate_model(X, y)
+
 # %%
 # Q2: How has temperature and rainfall impacted the perception of climate change occurring in individuals in the US since 2000?
-# base model + rainfall
+# base model + rainfall + c_temp
 print('Q2 Model with `rainfall`: \n')
-X = df_withdummies.drop(['happening', 'snowfall', 'population', 'el_nino', 'g_temp', 'c_temp',
+X = df_withdummies.drop(['happening', 'snowfall', 'population', 'el_nino', 'g_temp',
        'storms', 'disasters', 'spending'], axis=1)
-train_and_evaluate_model(X, y)
-#%%
-# base model +  c_temp
-print('Q2 Model with `c_temp`: \n')
-X = df_withdummies.drop(['happening', 'rainfall', 'snowfall', 'population', 'el_nino', 'g_temp',
-       'storms', 'disasters', 'spending'], axis=1)
+print(X.columns)
 train_and_evaluate_model(X, y)
 
 # %%
@@ -938,19 +943,15 @@ train_and_evaluate_model(X, y)
 print('Q3 Model: \n')
 X = df_withdummies.drop(['happening', 'rainfall', 'snowfall', 'population', 'c_temp', 'g_temp',
        'storms', 'disasters', 'spending'], axis=1)
+print(X.columns)
 train_and_evaluate_model(X, y)
 # %%
 # Q4: How have weather patterns impacted the perceptions of climate change among different political and socio-economic groups since 2000?
-# base model + rainfall + el+nino + g_temp
-print('Q4 Model with `rainfall`, `el_nino`, and `g_temp`: \n')
-X = df_withdummies.drop(['happening', 'snowfall', 'population', 'c_temp',
+# base model + rainfall + el+nino + c_temp
+print('Q4 Model with `rainfall`, `el_nino`, and `c_temp`: \n')
+X = df_withdummies.drop(['happening', 'snowfall', 'population', 'g_temp',
        'storms', 'disasters', 'spending'], axis=1)
-train_and_evaluate_model(X, y)
-
-# base model + c_temp + el_nino
-print('Q4 Model with `c_temp` and `el_nino`: \n')
-X = df_withdummies.drop(['happening', 'rainfall', 'snowfall', 'population', 'g_temp',
-      'storms', 'disasters', 'spending'], axis=1)
+print(X.columns)
 train_and_evaluate_model(X, y)
 
 # %%
@@ -958,4 +959,19 @@ train_and_evaluate_model(X, y)
 # base model + storms + disasters + spending
 print('Q5 Model: \n')
 X = df_withdummies.drop(['happening', 'rainfall', 'snowfall', 'population', 'el_nino', 'c_temp', 'g_temp'], axis=1)
+print(X.columns)
 train_and_evaluate_model(X, y)
+
+#%% [markdown]
+# # Conclusion
+# In this project, we explored the relationship between weather patterns and public perception of climate change in the United States. 
+# - We analyzed a dataset containing information on weather patterns, public opinion, and demographic factors from 2008 to 2020. 
+# - We performed exploratory data analysis to understand the trends in weather patterns and public opinion over time. 
+# - We also conducted correlation analysis, temporal analysis, and geospatial analysis to identify patterns and relationships in the data.
+# - We built logistic regression models to investigate the impact of weather patterns on public perception of climate change.
+# - Our models included variables such as temperature, rainfall, El Nino/La Nina patterns, and extreme weather events.
+# - The model accuracy score were pretty much consistent across all models, ranging from 0.72 to 0.73.
+# - This is because there are many factors that influence public perception of climate change, and weather patterns are just one of them.
+# - Other factors such as media coverage, political discourse, and personal beliefs also play a significant role in shaping public opinion.
+# - Overall, our analysis provides insights into the complex relationship between weather patterns and public perception of climate change, and highlights the need for further research in this area.
+# %%
