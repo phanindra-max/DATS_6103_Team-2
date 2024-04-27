@@ -1,5 +1,6 @@
 #%%[markdown]
 # Below are some first steps of EDA, which includes:
+# * Correlation Analysis to check if and how are the variables correlated
 # * Summary Statistics of the Variables in our dataset
 # * Data Visualization of the distribution of the Variables in our dataset
 # * Outlier and Missing Value Detection, and Imputation
@@ -192,6 +193,43 @@ for cols in cat_cols:
   plt.show()
 # %%[markdown]
 # Our categorical variables have a variety of distributions, most of which are not evenly spread between categories. Gender, however, is a roughly 50/50 split, and the year variable has similar frequencies from 2008 to 2021, but drops off in 2022. All of our other variables, however, have significant amounts of variation in the frequency of each category. Notably, our outcome variable, opinion on whether climate change is or is not happening, is a roughly 67/33 split, with roughly two thirds of all respondents from between 2008 to 2023 believing in climate change.
+
+#%%
+#Correlation Analysis
+num_cols_new = ['age', 'c_temp', 'snowfall', 'rainfall', 'disasters', 'storms', 'spending', 'el_nino', 'g_temp', 'children', 'adults', 'population']
+
+#Scaling the numeric variables
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(df[num_cols_new])
+
+# Calculating the correlation matrix
+correlation_matrix = df[num_cols_new].corr()
+
+# Displaying the correlation matrix
+print(correlation_matrix)
+
+plt.figure(figsize=(12, 8))
+
+# %%[markdown]
+#Insights from correlation Analysis
+# * Age and Climate Temperature (c_temp): There is a very weak negative correlation between age and climate temperature.
+# * Climate Temperature (c_temp) and Snowfall: There is a strong negative correlation between climate temperature and snowfall, which is expected as colder temperatures are associated with more snowfall.
+# * Climate Temperature (c_temp) and Rainfall: There is a weak negative correlation between climate temperature and rainfall.
+# * Climate Temperature (c_temp) and Natural Disasters (disasters): There is a weak positive correlation between climate temperature and the occurrence of natural disasters.
+# * Storms and Natural Disasters (disasters): There is a weak negative correlation between the number of storms and the occurrence of natural disasters.
+# * Storms and Climate Temperature (c_temp): There is a moderate positive correlation between the number of storms and climate temperature, indicating that higher temperatures may lead to more severe storms.
+# * Spending and Natural Disasters (disasters): There is a moderate positive correlation between spending and the occurrence of natural disasters, suggesting that more spending occurs in regions with more disasters.
+# * El Niño and Storms: There is a moderate positive correlation between the El Niño index and the number of storms, indicating that El Niño conditions may lead to more severe storms.
+# * Global Temperature (g_temp) and Storms: There is a strong positive correlation between global temperature and the number of storms, suggesting that global temperature may influence storm frequency.
+# * Global Temperature (g_temp) and Climate Temperature (c_temp): There is a strong positive correlation between global temperature and climate temperature, which is expected as global temperature affects local climate.
+
+
+# Create a heatmap
+sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt=".3f")
+
+# Add title and display the plot
+plt.title('Correlation Matrix')
+plt.show()
 
 # %%
 # Feature Engineering for model building
@@ -560,51 +598,16 @@ df_pca_catasdummies = pd.concat([df_PCA, cat_dummy_df], axis=1)
 
 #%%[markdown]
 # Below are some next steps of EDA, which includes:
-# * Correlation Analysis to check if and how are the variables correlated
 # * Temporal Analysis to check any treds over years
 # * Data Imbalance check for the Target variable
 # * Data Standardization for modeling
-# * Geospatial Analysis to understand geographical patterns
+# * Geographical Analysis to understand geographical patterns
 
 
 
 # %%
 # Import data
 print(df1.head())
-# %%
-num_cols = ['age', 'c_temp', 'snowfall', 'rainfall', 'disasters', 'storms', 'spending', 'el_nino', 'g_temp', 'g_temp_lowess', 'children', 'adults', 'population']
-# Case_ID is not on this list, as it seems to be another index column that does not provide any useful information
-cat_cols = ['happening', 'female', 'education', 'income', 'race', 'ideology', 'party', 'religion', 'marit_status', 'employment', 'City', 'year', 'month']
-
-
-#Correlation Analysis
-
-# Calculating the correlation matrix
-correlation_matrix = df1[num_cols].corr()
-
-# Displaying the correlation matrix
-print(correlation_matrix)
-
-plt.figure(figsize=(12, 8))
-
-# Create a heatmap
-sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt=".3f")
-
-# Add title and display the plot
-plt.title('Correlation Matrix')
-plt.show()
-# %%[markdown]
-#Insights from correlation Analysis
-# * Age and Climate Temperature (c_temp): There is a very weak negative correlation between age and climate temperature.
-# * Climate Temperature (c_temp) and Snowfall: There is a strong negative correlation between climate temperature and snowfall, which is expected as colder temperatures are associated with more snowfall.
-# * Climate Temperature (c_temp) and Rainfall: There is a weak negative correlation between climate temperature and rainfall.
-# * Climate Temperature (c_temp) and Natural Disasters (disasters): There is a weak positive correlation between climate temperature and the occurrence of natural disasters.
-# * Storms and Natural Disasters (disasters): There is a weak negative correlation between the number of storms and the occurrence of natural disasters.
-# * Storms and Climate Temperature (c_temp): There is a moderate positive correlation between the number of storms and climate temperature, indicating that higher temperatures may lead to more severe storms.
-# * Spending and Natural Disasters (disasters): There is a moderate positive correlation between spending and the occurrence of natural disasters, suggesting that more spending occurs in regions with more disasters.
-# * El Niño and Storms: There is a moderate positive correlation between the El Niño index and the number of storms, indicating that El Niño conditions may lead to more severe storms.
-# * Global Temperature (g_temp) and Storms: There is a strong positive correlation between global temperature and the number of storms, suggesting that global temperature may influence storm frequency.
-# * Global Temperature (g_temp) and Climate Temperature (c_temp): There is a strong positive correlation between global temperature and climate temperature, which is expected as global temperature affects local climate.
 
 # %%
 #Temporal Analysis
