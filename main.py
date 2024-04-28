@@ -889,39 +889,6 @@ df_withdummies.drop(['$12,500 to $14,999', '$15,000 to $19,999', '$20,000 to $24
 print("Base model variables:\n", df_withdummies.columns)
 
 #%%
-# Model building function
-# def train_and_evaluate_model(X, y):
-#     column_names = X.columns
-#     X = scaler.fit_transform(X)
-#     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-#     firth_model = LogisticRegressionCV(penalty='l1', solver='saga', cv=5, random_state=42, max_iter=1000)
-#     firth_model.fit(X_train, y_train)
-
-#     y_pred = firth_model.predict(X_test)
-
-#     accuracy = accuracy_score(y_test, y_pred)
-#     conf_matrix = confusion_matrix(y_test, y_pred)
-#     class_report = classification_report(y_test, y_pred)
-
-#     print("Accuracy:", accuracy)
-#     print("Confusion Matrix:\n", conf_matrix)
-#     print("Classification Report:\n", class_report)
-#     # print coefficients of each feature in the model in a clear format
-#     for i, col in enumerate(column_names):
-#         print(col, firth_model.coef_[0][i])
-#     print("Intercept:", firth_model.intercept_)
-
-# #%%
-# # Base model with standardized the data
-# # Selecting female, age, education level, income, race, ideology, party, religion, year, location for the base model
-# X = df_withdummies.drop(['happening', 'rainfall', 'snowfall', 'population', 'el_nino', 'c_temp', 'g_temp', 'storms', 'disasters', 'spending'], axis=1)
-# print(X.columns)
-# y = df_withdummies['happening']
-# print('Base Model: \n')
-# train_and_evaluate_model(X, y)
-
-#%%
 import statsmodels.api as sm
 
 def train_and_evaluate_model(X, y):
@@ -1025,4 +992,13 @@ train_and_evaluate_model(X, y)
 # - This is because there are many factors that influence public perception of climate change, and weather patterns are just one of them.
 # - Other factors such as media coverage, political discourse, and personal beliefs also play a significant role in shaping public opinion.
 # - Overall, our analysis provides insights into the complex relationship between weather patterns and public perception of climate change, and highlights the need for further research in this area.
-  # %%
+
+
+# %%
+# Running the model on all variables
+# base model + all variables
+print('Model with all variables: \n')
+X = df_withdummies.drop(['happening'], axis=1)
+print(X.columns)
+train_and_evaluate_model(X, y)
+# %%
