@@ -949,7 +949,7 @@ train_and_evaluate_model(X, y)
 # %%
 # Q2: How has temperature and rainfall impacted the perception of climate change occurring in individuals in the US since 2000?
 # base model + rainfall + c_temp
-print('Q2 Model with `rainfall`: \n')
+print('Q2 Model with `rainfall` and `c_temp`: \n')
 X = df_withdummies.drop(['happening', 'snowfall', 'population', 'el_nino', 'g_temp',
        'storms', 'disasters', 'spending'], axis=1)
 print(X.columns)

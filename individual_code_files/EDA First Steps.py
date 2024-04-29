@@ -25,7 +25,7 @@ import statsmodels.api as sm
 import pylab as py
 # %%
 # Import data
-df1 = pd.read_csv('DATS 6103 Final Team 2 Data.csv')
+df1 = pd.read_csv('../DATS 6103 Final Team 2 Data.csv')
 
 df1.head()
 # Unnamed:, Case_ID, and region9 contain redundant index values, so they can be dropped
