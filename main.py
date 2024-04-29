@@ -1,3 +1,12 @@
+# %%
+# Below is the cose used to combine the different portions of data used in the Group 2 final project.
+#There were four data sources used for this work.
+#   -YPCCC climate survey data (https://osf.io/jw79p/)
+#   -NOAANow data (https://sercc.com/noaa-online-weather/)
+#   -FEMA data (https://www.fema.gov/openfema-data-page/disaster-declarations-summaries-v2)
+#   -NASA data (https://climate.nasa.gov/vital-signs/global-temperature/?intent=121)
+#For the NOAA data, no direct downloads were available. Rather I had to copy and paste records from the site into a single file representing the biggest cities in each region included in the YPCCC data.
+
 #%%[markdown]
 # Below are some first steps of EDA, which includes:
 # * Correlation Analysis to check if and how are the variables correlated
