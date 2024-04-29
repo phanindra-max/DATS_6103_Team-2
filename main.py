@@ -616,26 +616,14 @@ new_df = df1.loc[:,['year','age','c_temp','snowfall','rainfall','disasters','sto
 yearly_data = new_df.groupby('year').mean()
 
 # # Plotting the trends over time
-fig, axes = plt.subplots(nrows=3, ncols=2, figsize=(20, 15))
-
-plots = [
-    ('age', 'Average Age Over Time', 'Age'),
-    ('c_temp', 'Average Temperature Over Time', 'Temperature'),
-    ('snowfall', 'Average Snowfall Over Time', 'Snowfall'),
-    ('rainfall', 'Average Rainfall Over Time', 'Rainfall'),
-    ('disasters', 'Average Disasters Over Time', 'Disasters'),
-    ('storms', 'Average Storms Over Time', 'Storms')
-]
-
-for i, (col, title, ylabel) in enumerate(plots):
-    row, col_idx = i // 2, i % 2
-    axes[row, col_idx].plot(yearly_data.index, yearly_data[col], marker='o')
-    axes[row, col_idx].set_title(title)
-    axes[row, col_idx].set_xlabel('Year')
-    axes[row, col_idx].set_ylabel(ylabel)
-
-plt.tight_layout()
-plt.show()
+for column in yearly_data.columns:
+    plt.figure(figsize=(10, 6))
+    plt.plot(yearly_data.index, yearly_data[column], marker='o')
+    plt.title(f'Average {column.replace("_", " ").title()} Over Time')
+    plt.xlabel('Year')
+    plt.ylabel(column.replace("_", " ").title())
+    plt.grid(True)
+    plt.show()
 
 # %%[markdown]
 
@@ -697,52 +685,6 @@ create_city_bar_plot('storms', 'Mean Severe Storm Warnings by City', 'Mean Storm
 # * Rainfall Distribution: Rainfall patterns also vary across regions and cities, with some areas receiving higher average rainfall than others. This could be influenced by proximity to oceans or other large bodies of water, as well as local topography.
 # * Natural Disaster Frequency: The frequency of weather-related natural disasters varies across regions and cities, with some areas experiencing more frequent disasters than others. This could be due to factors such as geographical location, climate, and susceptibility to certain types of disasters.
 # * Severe Storm Warnings: The frequency of severe storm warnings does not vary across regions and cities.
-
-#%%
-
-# Data Imbalance check
-
-happening_counts = df1['happening'].value_counts()
-print(happening_counts)
-
-# Plotting the distribution of the 'happening' variable
-plt.figure(figsize=(6, 4))
-sns.countplot(x='happening', data=df1)
-plt.title('Distribution of Happening Variable')
-plt.xlabel('Happening')
-plt.ylabel('Count')
-plt.show()
-
-# Calculating the imbalance ratio
-imbalance_ratio = happening_counts[0] / happening_counts[1]
-print("Imbalance Ratio:", imbalance_ratio)
-
-
-# %%[markdown]
-#This indicates that the majority class (1.0) has approximately twice as many instances as the minority class (0.0)
-
-# %%
-
-
-# Question 1: Trend of global temperature changes vs. US opinion of climate change
-plt.figure(figsize=(12, 6))
-sns.lineplot(data=df1, x='year', y='g_temp', label='Global Temperature')
-sns.lineplot(data=df1, x='year', y='happening', label='US Opinion of Climate Change')
-plt.xlabel('Year')
-plt.ylabel('Value')
-plt.title('Global Temperature Changes vs. US Opinion of Climate Change')
-plt.legend()
-plt.show()
-#%%
-# Question 2: Relationship between temperature/rainfall and belief in climate change
-plt.figure(figsize=(12, 6))
-sns.scatterplot(data=df1, x='rainfall', y='c_temp',hue = 'happening')
-plt.xlabel('Rainfall')
-plt.ylabel('Temperature')
-plt.title('Temperature and Rainfall vs. Belief in Climate Change')
-plt.legend(title='happening')
-plt.show()
-
 
 # %% [markdown]
 # # Modeling
