@@ -1,3 +1,12 @@
+# %%
+# Below is the cose used to combine the different portions of data used in the Group 2 final project.
+#There were four data sources used for this work.
+#   -YPCCC climate survey data (https://osf.io/jw79p/)
+#   -NOAANow data (https://sercc.com/noaa-online-weather/)
+#   -FEMA data (https://www.fema.gov/openfema-data-page/disaster-declarations-summaries-v2)
+#   -NASA data (https://climate.nasa.gov/vital-signs/global-temperature/?intent=121)
+#For the NOAA data, no direct downloads were available. Rather I had to copy and paste records from the site into a single file representing the biggest cities in each region included in the YPCCC data.
+
 #%%[markdown]
 # Below are some first steps of EDA, which includes:
 # * Correlation Analysis to check if and how are the variables correlated
@@ -16,6 +25,7 @@
 # * "dummy_PCA"
 
 #%%
+import datetime
 import statistics
 import numpy as np
 import pylab as py
@@ -29,6 +39,61 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 from sklearn.preprocessing import StandardScaler
 scaler = StandardScaler()
+
+#%%
+'''
+### Clean and format disater data
+# Begin by reading in disaster declariations data
+data = pd.read_csv("DisasterDeclarationsSummaries(1).csv")
+# Drop data older than required years
+data = data[data['fyDeclared'] > 1999]  
+# Sum by state and year and disaster type
+d_table = data.groupby(['state','fyDeclared']).count()
+d_table = d_table.reset_index()
+d_table = d_table.drop('declarationType', axis=1)
+
+# Next read in FEMA spending
+dollars = pd.read_csv("PublicAssistanceFundedProjectsDetails.csv")
+# Deconstruct date and retain year
+dollars['declarationDate'] = pd.to_datetime(dollars['declarationDate'])
+dollars['declarationDate'] = pd.DatetimeIndex(dollars['declarationDate']).year
+#Sum by state and year
+dollar_table = dollars.groupby(['stateCode','declarationDate']).sum()
+dollar_table = dollar_table.reset_index()
+dollar_table = dollar_table.drop('incidentType', axis=1)
+# Merge into one file
+FEMA = pd.merge(d_table, dollar_table,  how='outer', left_on=['state','fyDeclared'], right_on = ['stateCode','declarationDate'])
+FEMA = [['state', 'fyDeclared', 'disasterNumber', 'projectAmount']]
+#%%
+#Read in region index 
+region = pd.read_csv("Population and Region.csv")
+region = region[['Rergion', 'State']]
+# Merge into file
+regions = pd.merge(region, FEMA, how='left', left_on=['State'], right_on=['state'])
+# Drop unused data
+regions = regions.drop('state', axis=1)
+#sum by region and year
+regions = regions.groupby(['State','fyDeclared']).sum()
+#Change NA to 0
+regions['disasterNumber'] = regions['disasterNumber'].fillna(0)
+regions['projectAmount'] = regions['projectAmount'].fillna(0)
+
+#%%
+### Merge data
+# read in survey data
+# Survey data has had unused rows manually removed to reduce the file size
+s_data = pd.read_csv("CCAM SPSS Data 2008-2022 (cleaned).csv")
+
+# Read in weather data
+# Weather data is "hand" compiled from NOAA and NASA sources.
+w_data = pd.read_csv("Weather Data.csv")
+
+# Merge weather and survey data
+df = pd.merge(s_data, w_data, how='left', left_on=['region9'], right_on=['region9'])
+# merge in disaster data
+df1 = pd.merge(df, regions, how='left', left_on=['region9'], right_on=['Rergion'])
+df1.to_csv('DATS 6103 Final Team 2 Data.csv')
+'''
 # %%
 # Import data
 df1 = pd.read_csv('DATS 6103 Final Team 2 Data.csv')
@@ -616,26 +681,14 @@ new_df = df1.loc[:,['year','age','c_temp','snowfall','rainfall','disasters','sto
 yearly_data = new_df.groupby('year').mean()
 
 # # Plotting the trends over time
-fig, axes = plt.subplots(nrows=3, ncols=2, figsize=(20, 15))
-
-plots = [
-    ('age', 'Average Age Over Time', 'Age'),
-    ('c_temp', 'Average Temperature Over Time', 'Temperature'),
-    ('snowfall', 'Average Snowfall Over Time', 'Snowfall'),
-    ('rainfall', 'Average Rainfall Over Time', 'Rainfall'),
-    ('disasters', 'Average Disasters Over Time', 'Disasters'),
-    ('storms', 'Average Storms Over Time', 'Storms')
-]
-
-for i, (col, title, ylabel) in enumerate(plots):
-    row, col_idx = i // 2, i % 2
-    axes[row, col_idx].plot(yearly_data.index, yearly_data[col], marker='o')
-    axes[row, col_idx].set_title(title)
-    axes[row, col_idx].set_xlabel('Year')
-    axes[row, col_idx].set_ylabel(ylabel)
-
-plt.tight_layout()
-plt.show()
+for column in yearly_data.columns:
+    plt.figure(figsize=(10, 6))
+    plt.plot(yearly_data.index, yearly_data[column], marker='o')
+    plt.title(f'Average {column.replace("_", " ").title()} Over Time')
+    plt.xlabel('Year')
+    plt.ylabel(column.replace("_", " ").title())
+    plt.grid(True)
+    plt.show()
 
 # %%[markdown]
 
@@ -697,52 +750,6 @@ create_city_bar_plot('storms', 'Mean Severe Storm Warnings by City', 'Mean Storm
 # * Rainfall Distribution: Rainfall patterns also vary across regions and cities, with some areas receiving higher average rainfall than others. This could be influenced by proximity to oceans or other large bodies of water, as well as local topography.
 # * Natural Disaster Frequency: The frequency of weather-related natural disasters varies across regions and cities, with some areas experiencing more frequent disasters than others. This could be due to factors such as geographical location, climate, and susceptibility to certain types of disasters.
 # * Severe Storm Warnings: The frequency of severe storm warnings does not vary across regions and cities.
-
-#%%
-
-# Data Imbalance check
-
-happening_counts = df1['happening'].value_counts()
-print(happening_counts)
-
-# Plotting the distribution of the 'happening' variable
-plt.figure(figsize=(6, 4))
-sns.countplot(x='happening', data=df1)
-plt.title('Distribution of Happening Variable')
-plt.xlabel('Happening')
-plt.ylabel('Count')
-plt.show()
-
-# Calculating the imbalance ratio
-imbalance_ratio = happening_counts[0] / happening_counts[1]
-print("Imbalance Ratio:", imbalance_ratio)
-
-
-# %%[markdown]
-#This indicates that the majority class (1.0) has approximately twice as many instances as the minority class (0.0)
-
-# %%
-
-
-# Question 1: Trend of global temperature changes vs. US opinion of climate change
-plt.figure(figsize=(12, 6))
-sns.lineplot(data=df1, x='year', y='g_temp', label='Global Temperature')
-sns.lineplot(data=df1, x='year', y='happening', label='US Opinion of Climate Change')
-plt.xlabel('Year')
-plt.ylabel('Value')
-plt.title('Global Temperature Changes vs. US Opinion of Climate Change')
-plt.legend()
-plt.show()
-#%%
-# Question 2: Relationship between temperature/rainfall and belief in climate change
-plt.figure(figsize=(12, 6))
-sns.scatterplot(data=df1, x='rainfall', y='c_temp',hue = 'happening')
-plt.xlabel('Rainfall')
-plt.ylabel('Temperature')
-plt.title('Temperature and Rainfall vs. Belief in Climate Change')
-plt.legend(title='happening')
-plt.show()
-
 
 # %% [markdown]
 # # Modeling
