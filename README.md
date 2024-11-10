@@ -47,5 +47,7 @@ Files under `./data_files/` are archives of the data files used to build the fin
 
 Execute the following command to run the code:
 
-```bash python main.py```
+```bash 
+python main.py
+```
 
